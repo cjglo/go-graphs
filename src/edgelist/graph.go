@@ -1,7 +1,5 @@
 package edgelist
 
-// Graph as Edge List
-
 import (
 	"os"
 	"fmt"
@@ -11,6 +9,7 @@ import (
 	"strconv"
 )
 
+// === Graph as Edge List
 
 type Graph struct {
 	vertices []vertex
@@ -27,6 +26,25 @@ type edge struct {
 	Index int
 	V1 *vertex
 	V2 *vertex
+}
+
+func (graph Graph) FindShortestPath(v1Name string, v2Name string) (int, error) {
+
+	// find vertices
+	v1 := graph.findVertexByName(v1Name)
+	if v1 == nil {
+		return 0, errors.New("v1 not found")
+	}
+	v2 := graph.findVertexByName(v2Name) 
+	if v2 == nil {
+		return 0, errors.New("v1 not found")
+	}
+
+
+
+
+	// TODO: Finish this algorithm (Breadth First Search)
+	return 0, nil
 }
 
 // NOTE: I have some error handling, but since this is for graph practice not to create an actual library, I am somewhat expecting "graph language" correctness
@@ -78,7 +96,7 @@ func ReadFromFile(filePath string) (Graph, error) {
 	return graph, nil
 }
 
-
+// helper functions
 func (graph Graph) findVertexByName(name string) *vertex {
 	for _, vert := range(graph.vertices) {
 		if vert.Name == name {

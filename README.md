@@ -8,8 +8,8 @@ My library for creating various Graph implementations.  No resources used for th
 Each directory has image of graph that was used for implementation.  All Graphs are weighted and undirectional.
 
 Each Graph will implement:
-1. Algorithm to read in custom graph language (below) and create graph
-2. Shortest path from a two given Vertices
+1. ReadFromFile -> Algorithm to read in custom graph language (below) and create graph
+2. FindShortestPath -> Shortest path from a two given Vertices
 3. Search and return Vertex if exists
 -- Private Methods
 4. delete Vertex
