@@ -1,6 +1,6 @@
 # Go Graphs
 
-My library for creating various Graph implementations.  No resources used for this other than by old C++ data structures book to remember how to build.
+My library for creating various Graph implementations.  No resources used for this other than by old C++ data structures book to remember how to build and the png `Graph` as a starting point for the Graph.
 
 
 ### Graphs
