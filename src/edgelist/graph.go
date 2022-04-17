@@ -14,8 +14,8 @@ import (
 // === Graph as Edge List
 
 type Graph struct {
-	vertices []vertex
-	edges []edge
+	vertices []*vertex
+	edges []*edge
 }
 
 type vertex struct {
@@ -31,7 +31,7 @@ type edge struct {
 	V2 *vertex
 }
 
-func (graph Graph) FindShortestPath(v1Name string, v2Name string) (int, error) {
+func (graph* Graph) FindShortestPath(v1Name string, v2Name string) (int, error) {
 
 	// find vertices
 	v1 := graph.findVertexByName(v1Name)
@@ -51,7 +51,7 @@ func (graph Graph) FindShortestPath(v1Name string, v2Name string) (int, error) {
 
 	path := graph.recurseDijkstras(graph.findVertexByName(v1Name), graph.findVertexByName(v2Name), m, 0)
 
-	// TODO: Reset all to unvisted, build helper function
+	graph.resetAllToUnvisited()
 
 	return path, nil
 }
@@ -68,7 +68,7 @@ func ReadFromFile(filePath string) (Graph, error) {
 	defer file.Close()
 
 	// creation of graph to return
-	graph := Graph{vertices: make([]vertex, 0), edges: make([]edge, 0)}
+	graph := Graph{vertices: make([]*vertex, 0), edges: make([]*edge, 0)}
 
 	scanner := bufio.NewScanner(file)
     for scanner.Scan() {
@@ -93,15 +93,14 @@ func ReadFromFile(filePath string) (Graph, error) {
 				fmt.Errorf("Error creating Vertex. Not Found: " + words[1] + " " + words[2])
 			}
 
-			graph.edges = append(graph.edges, edge{Weight: weight, Index: len(graph.edges), V1: v1, V2: v2})
+			graph.edges = append(graph.edges, &edge{Weight: weight, Index: len(graph.edges), V1: v1, V2: v2})
 
 		} else if line[0] != ' ' && line[0] != '\n' {
 			// creating vertex
-			graph.vertices = append(graph.vertices, vertex{Name: words[0], Index: len(graph.vertices), Visited: false})
+			graph.vertices = append(graph.vertices, &vertex{Name: words[0], Index: len(graph.vertices), Visited: false})
 		}
     }
 
-	fmt.Println(graph)
 	return graph, nil
 }
 
@@ -113,7 +112,7 @@ type vertexPairing struct {
 	EdgeWeight int
 }
 
-func (graph Graph) recurseDijkstras(begin *vertex, end *vertex, m map[string]int, pathSum int) int {
+func (graph* Graph) recurseDijkstras(begin *vertex, end *vertex, m map[string]int, pathSum int) int {
 
 	if begin == end {
 		return m[end.Name]
@@ -137,26 +136,24 @@ func (graph Graph) recurseDijkstras(begin *vertex, end *vertex, m map[string]int
 	return min
 }
 
-func (graph Graph) createHeapOfNeighbors(origin *vertex) []vertexPairing {
+func (graph* Graph) createHeapOfNeighbors(origin *vertex) []vertexPairing {
 
 	neighborList := make([]vertexPairing, 0) // heap would be better, will likely come back to impl own heap in future
 
 	for _, edge := range(graph.edges) {
-
-		var pair vertexPairing
-
 		if edge.V1 == origin && !edge.V2.Visited {
-			pair = vertexPairing {
+			pair := vertexPairing {
 				Vert: edge.V2,
 				EdgeWeight: edge.Weight,
 			}
+			neighborList = append(neighborList, pair)
 		} else if edge.V2 == origin && !edge.V1.Visited {
-			pair = vertexPairing {
+			pair := vertexPairing {
 				Vert: edge.V1,
 				EdgeWeight: edge.Weight,
 			}
+			neighborList = append(neighborList, pair)
 		}
-		neighborList = append(neighborList, pair)
 	}
 
 	sort.Slice(neighborList, func(i, j int) bool {
@@ -170,13 +167,13 @@ func (graph Graph) createHeapOfNeighbors(origin *vertex) []vertexPairing {
 func (graph Graph) findVertexByName(name string) *vertex {
 	for _, vert := range(graph.vertices) {
 		if vert.Name == name {
-			return &vert
+			return vert
 		}
 	}
 	return nil
 }
 
-func (graph Graph) updateNeighborsDijkstras(vert *vertex, pathSum int, m map[string]int) map[string]int {
+func (graph *Graph) updateNeighborsDijkstras(vert *vertex, pathSum int, m map[string]int) map[string]int {
 
 	weight := 0
 	name := ""
@@ -186,13 +183,17 @@ func (graph Graph) updateNeighborsDijkstras(vert *vertex, pathSum int, m map[str
 		if edge.V1 == vert {
 			weight = edge.Weight
 			name = edge.V2.Name
+			val, _ := m[name]
+			if val > weight + pathSum {
+				m[name] = weight + pathSum
+			}
 		} else if edge.V2 == vert {
 			weight = edge.Weight
 			name = edge.V1.Name
-		}
-		val, _ := m[name]
-		if val > weight + pathSum {
-			m[name] = weight + pathSum
+			val, _ := m[name]
+			if val > weight + pathSum {
+				m[name] = weight + pathSum
+			}
 		}
 	}
 	
@@ -213,4 +214,11 @@ func (graph Graph) findAllAdjacentVertices(center *vertex) []*vertex {
 	}
 	
 	return vertexList
+}
+
+func (graph *Graph) resetAllToUnvisited() {
+	
+	for _, vert := range(graph.vertices) {
+		vert.Visited = false
+	}
 }
