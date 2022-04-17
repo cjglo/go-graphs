@@ -46,3 +46,19 @@ func TestShortestPath(t* testing.T) {
 		t.Errorf("Failed: Path 2 expect to be 17 but got: " + strconv.Itoa(lengthOfPath2))
 	}
 }
+
+func TestFindVertex(t* testing.T) {
+
+	graph, err := ReadFromFile("example_graph.txt")
+	if err != nil {
+		t.Errorf("Failed to initialize graph: " + err.Error())
+	}
+
+	if !graph.DoesNameExistInGraph("a") {
+		t.Errorf("FailedL Could not find vertex 'a'")
+	}
+
+	if graph.DoesNameExistInGraph("z") {
+		t.Errorf("Failed: Returned true for 'z' despite it not existing in graph")
+	}
+}

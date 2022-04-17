@@ -1,28 +1,30 @@
-# Go Graphs
+# Graphs
 
 My library for creating various Graph implementations.  No resources used for this other than by old C++ data structures book to remember how to build and the png `Graph` as a starting point for the Graph.
 
+## Tools
 
-### Graphs
+I decided to mix up the langauges to keep things interesting. So far:
 
-Each directory has image of graph that was used for implementation.  All Graphs are weighted and undirectional.
+Edge List Implementation -> Go
+Adjacency List Implementation -> Zig 
+Matrix Implementation -> TBD (Leaning towards C++ or Go)
+
+### Properties
+
+`Graph.png` will be the graph implemented (may add a few vertices to vary the graphs of each implementation).  All Graphs are weighted and undirectional.
 
 Each Graph will implement:
+-- Public Methods
 1. ReadFromFile -> Algorithm to read in custom graph language (below) and create graph
-2. FindShortestPath -> Shortest path from a two given Vertices
-3. Search and return Vertex if exists
--- Private Methods
-4. delete Vertex
-5. delete Edge
-6. add Vertex (with 1 parameter: value)
-7. add Edge (with 2 paramters: Two Vertices it is between)
+2. FindShortestPath -> Shortest path from a two given Vertices (Dijkstra's)
+3. DoesNameExistInGraph -> Return true if a name matches the name of any vertex, else return false
 
-
-Also will implement a read algorithm that will create graph from text I make.  Text will work like this: (anything after // is comment about line)
+The read algorithm that will create graph from text will work like this: (anything after // is comment about line)
 
 ```
 a // first lists Vertices, these are just the names of the Vertex
-b // NOTE: we use these names as indenfifiers, so they must be unqiue
+b // NOTE: we use these names as identifiers, so they must be unqiue
 c
 d
 

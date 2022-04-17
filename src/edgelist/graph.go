@@ -104,6 +104,15 @@ func ReadFromFile(filePath string) (Graph, error) {
 	return graph, nil
 }
 
+func (graph Graph) DoesNameExistInGraph(name string) bool {
+	for _, vect := range(graph.vertices) {
+		if name == vect.Name {
+			return true
+		} 
+	}
+	return false
+}
+
 // helper functions/structs
 
 // this struct makes Dijksra's a lot easier
@@ -217,7 +226,7 @@ func (graph Graph) findAllAdjacentVertices(center *vertex) []*vertex {
 }
 
 func (graph *Graph) resetAllToUnvisited() {
-	
+
 	for _, vert := range(graph.vertices) {
 		vert.Visited = false
 	}
