@@ -1,14 +1,10 @@
 package edgelist
 
-
 import (
 	// "fmt"
 	"testing"
 	"strconv"
 )
-
-
-
 
 func TestInitGraph(t *testing.T) {
     
@@ -18,7 +14,6 @@ func TestInitGraph(t *testing.T) {
 	}
 }
 
-
 func TestShortestPath(t* testing.T) {
 
 	graph, err := ReadFromFile("example_graph.txt")
@@ -27,13 +22,11 @@ func TestShortestPath(t* testing.T) {
 	}
 
 	lengthOfPath1, err1 := graph.FindShortestPath("a", "g")
-
 	if err1 != nil {
 		t.Errorf("Failed: " + err1.Error())
 	}
 
 	lengthOfPath2, err2 := graph.FindShortestPath("f", "d")
-
 	if err2 != nil {
 		t.Errorf("Failed: " + err2.Error())
 	}
@@ -54,6 +47,7 @@ func TestFindVertex(t* testing.T) {
 		t.Errorf("Failed to initialize graph: " + err.Error())
 	}
 
+	// actual testing for searching for vertex
 	if !graph.DoesNameExistInGraph("a") {
 		t.Errorf("FailedL Could not find vertex 'a'")
 	}

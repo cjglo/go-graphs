@@ -6,9 +6,9 @@ My library for creating various Graph implementations.  No resources used for th
 
 I decided to mix up the langauges to keep things interesting. So far:
 
-Edge List Implementation -> Go
-Adjacency List Implementation -> Zig 
-Matrix Implementation -> TBD (Leaning towards C++ or Go)
+1. Edge List Implementation -> Go
+2. Adjacency List Implementation -> Zig 
+3. Matrix Implementation -> TBD (Leaning towards C++ or Go)
 
 ### Properties
 
