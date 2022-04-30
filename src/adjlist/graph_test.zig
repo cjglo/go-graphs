@@ -3,15 +3,15 @@ const graph = @import("graph.zig");
 
 const TestError = error{ Unimplemented, GraphInitFailure };
 
-// == Tests ==
-
-// TODO Remove first test in future
-test "Expect blank Graph to be initialized succesfully" {
-    _ = graph.Graph([]const u8);
-}
-
+// === Tests ===
 test "Expect ReadFromFile to initialize Graph successfully" {
-    return error.SkipZigTest;
+    var g = graph.Graph([]const u8) {
+        .edges = undefined,
+        .vertices = undefined,
+        .allocator = undefined
+    }; // take type and just initialize it
+
+    try g.readFromFile("example_graph.txt", null);
 }
 
 test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 15" {
