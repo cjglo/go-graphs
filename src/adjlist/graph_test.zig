@@ -5,13 +5,14 @@ const TestError = error{ Unimplemented, GraphInitFailure };
 
 // === Tests ===
 test "Expect ReadFromFile to initialize Graph successfully" {
-    var g = graph.Graph([]const u8) {
-        .edges = undefined,
-        .vertices = undefined,
-        .allocator = undefined
-    }; // take type and just initialize it
 
-    try g.readFromFile("example_graph.txt", null);
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var allocator = gpa.allocator();
+    var g = try graph.Graph([]const u8).init(allocator); // take type and just initialize it
+
+    try g.readFromFile("example_graph.txt");
+
+    try g.deinit();
 }
 
 test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 15" {
