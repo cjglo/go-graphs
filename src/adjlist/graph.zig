@@ -15,7 +15,7 @@ pub fn Graph(comptime T: type) type {
         // Incidences implemented as a ArrayList
         const Incidence = ArrayList(*Edge);
 
-        pub const Vertex = struct { name: T, index: u64, incidence: Incidence };
+        pub const Vertex = struct { name: []u8, index: u64, incidence: Incidence };
 
         pub const Edge = struct {
             weight: u64,
@@ -27,8 +27,9 @@ pub fn Graph(comptime T: type) type {
         };
 
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
+            _ = T; // TODO: Current issue marked:  can't think of good reason to have generics
 
-            // TODO: Leave this in? Good to deinit cause could mem leak, but maybe user should handle
+            // TODO: Leave this in? Good to deinit cause w/o could mem leak, but maybe user should handle
             try self.deinit();
             self.vertices = ArrayList(*Vertex).init(self.allocator);
             self.edges = ArrayList(*Edge).init(self.allocator);
@@ -44,17 +45,14 @@ pub fn Graph(comptime T: type) type {
                 if (line.len == 0) {
                     continue;
                 } else if (line[0] == '-') {
-                    std.debug.print("\ncreating edeg with {s}\n", .{line});
-
                     var i: u32 = 2; // first 2 chars will be '-' and ' ' so info starts @ 2
                     var weight: u32 = 0;
-                    var base: u32 = 1;
-                    while ('0' <= line[i] and line[i] <= '9') : (base *= 10) {
+                    var base: u32 = 10;
+                    while ('0' <= line[i] and line[i] <= '9') : (i += 1) {
                         const digit = line[i] - '0';
-                        weight += digit * base;
-                        i += 1;
+                        weight *= base;
+                        weight += digit;
                     }
-                    std.debug.print("\n Weight: {}", .{weight});
 
                     i += 1;
                     var j = i;
@@ -62,7 +60,6 @@ pub fn Graph(comptime T: type) type {
                         j += 1;
                     }
                     var name1: []u8 = line[i..j];
-                    std.debug.print("\n name1:{s}:", .{name1});
 
                     j += 1;
                     i = j;
@@ -70,22 +67,19 @@ pub fn Graph(comptime T: type) type {
                         j += 1;
                     }
                     var name2: []u8 = line[i..j];
-                    std.debug.print("\n name2:{s}:", .{name2});
 
                     try self.createEdge(self.allocator, weight, name1, name2);
                 } else if (line[0] != ' ' and (line[0] != '\n')) {
-                    std.debug.print("\ncreating vertex: {s}", .{line});
                     try self.createVertex(self.allocator, line);
                 }
             }
-
-            // TODO to be continued...
         }
+
+        // === Private Functions and init/deinit ===
 
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);
 
-            std.debug.print("\ninside, creating: {s}", .{name});
             var nameClone = try allocator.alloc(u8, name.len);
             for (name) |char, i| {
                 nameClone[i] = char;
@@ -123,9 +117,6 @@ pub fn Graph(comptime T: type) type {
 
         fn findVertexByName(self: *Self, name: []u8) GraphError!*Vertex {
             for (self.vertices.items) |vert| {
-                std.debug.print("\nvert-name: {s}", .{vert.name});
-                std.debug.print("\nsearch-name: {s}", .{name});
-
                 if (std.mem.eql(u8, vert.name, name)) return vert;
             }
             return GraphError.VertexNotFound;
