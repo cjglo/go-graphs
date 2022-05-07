@@ -8,7 +8,7 @@ I decided to mix up the langauges to keep things interesting. So far:
 
 1. Edge List Implementation -> Go
 2. Adjacency List Implementation -> Zig 
-3. Matrix Implementation -> TBD (Leaning towards C++ or Go)
+3. Matrix Implementation -> TBD (Leaning towards C++...maybe Zig again)
 
 ### Properties
 

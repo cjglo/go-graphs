@@ -46,32 +46,33 @@ pub fn Graph(comptime T: type) type {
                 } else if (line[0] == '-') {
                     std.debug.print("\ncreating edeg with {s}\n", .{line});
 
-                    var i: u32 = 2;
+                    var i: u32 = 2; // first 2 chars will be '-' and ' ' so info starts @ 2
                     var weight: u32 = 0;
                     var base: u32 = 1;
-                    while ('0' <= line[1] and line[1] <= '9') : (base *= 10) {
+                    while ('0' <= line[i] and line[i] <= '9') : (base *= 10) {
                         const digit = line[i] - '0';
                         weight += digit * base;
                         i += 1;
                     }
                     std.debug.print("\n Weight: {}", .{weight});
 
-                    var name1: []u8 = "";
-                    i += 1; // to move past space
-                    while (line[i] != ' ') : (i += 1) {
-                        name1 = name1 ++ line[i];
+                    i += 1;
+                    var j = i;
+                    while (line[j] != ' ') {
+                        j += 1;
                     }
+                    var name1: []u8 = line[i..j];
+                    std.debug.print("\n name1:{s}:", .{name1});
 
-                    std.debug("\n Name: {}", .{name1});
-                    //try self.createEdge(self.allocator, weight,   )
-
-                    var name2 = "";
-                    i += 1; // to move past space
-                    while (line[i] != ' ') : (i += 1) {
-                        name2 = name2 ++ line[i];
+                    j += 1;
+                    i = j;
+                    while (j < line.len and line[j] != ' ') {
+                        j += 1;
                     }
+                    var name2: []u8 = line[i..j];
+                    std.debug.print("\n name2:{s}:", .{name2});
 
-                    std.debug("\n Name2: {}", .{name2});
+                    try self.createEdge(self.allocator, weight, name1, name2);
                 } else if (line[0] != ' ' and (line[0] != '\n')) {
                     std.debug.print("\ncreating vertex: {s}", .{line});
                     try self.createVertex(self.allocator, line);
@@ -83,7 +84,14 @@ pub fn Graph(comptime T: type) type {
 
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);
-            vert.name = name;
+
+            std.debug.print("\ninside, creating: {s}", .{name});
+            var nameClone = try allocator.alloc(u8, name.len);
+            for (name) |char, i| {
+                nameClone[i] = char;
+            }
+
+            vert.name = nameClone;
             vert.incidence = Incidence.init(allocator);
             vert.index = self.vertices.items.len;
             // decided to append rather than return because of vert.index.  Could cause issues to set index, but have outer function append
@@ -95,8 +103,8 @@ pub fn Graph(comptime T: type) type {
             var edge = try allocator.create(Edge);
             edge.weight = weight;
 
-            const v1 = self.findVertexByName(v1name);
-            const v2 = self.findVertexByName(v2name);
+            const v1 = try self.findVertexByName(v1name);
+            const v2 = try self.findVertexByName(v2name);
             edge.v1 = v1;
             edge.v2 = v2;
 
@@ -105,19 +113,20 @@ pub fn Graph(comptime T: type) type {
             edge.incidenceSpot1 = &v1.incidence.items[index1]; // pointer to the pointer inside incidence
 
             const index2 = v2.incidence.items.len;
-            try v1.incidence.append(edge);
+            try v2.incidence.append(edge);
             edge.incidenceSpot2 = &v2.incidence.items[index2]; // same as above but for vertex 2
 
-            self.index = self.edges.items.len;
+            edge.index = self.edges.items.len;
             // decided to append rather than return because of edge.index.  Could cause issues to set index, but have outer function append
             try self.edges.append(edge);
         }
 
         fn findVertexByName(self: *Self, name: []u8) GraphError!*Vertex {
             for (self.vertices.items) |vert| {
-                if (vert.name == name) {
-                    return vert;
-                }
+                std.debug.print("\nvert-name: {s}", .{vert.name});
+                std.debug.print("\nsearch-name: {s}", .{name});
+
+                if (std.mem.eql(u8, vert.name, name)) return vert;
             }
             return GraphError.VertexNotFound;
         }
@@ -132,6 +141,7 @@ pub fn Graph(comptime T: type) type {
             }
             if (self.vertices.items.len != 0) {
                 self.vertices.deinit();
+                // TODO: Need to deallocate names as well
             }
         }
 
