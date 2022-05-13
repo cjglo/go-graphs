@@ -26,11 +26,15 @@ pub fn Graph(comptime T: type) type {
             incidenceSpot2: **Edge, // same as above but for other Vertex it connects
         };
 
+        // map used for Dijkstra's
+        const HashMap = std.array_hash_map.AutoArrayHashMap(*Vertex, u64);
+
         pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) !u64 {
             const vert1: *Vertex = try self.findVertexByName(vertName1);
             const vert2: *Vertex = try self.findVertexByName(vertName2);
 
-            var map = std.array_hash_map.AutoArrayHashMap(*Vertex, u64).init(self.allocator);
+            var map = HashMap.init(self.allocator);
+
             defer map.deinit();
 
             for (self.vertices.items) |vert| {
@@ -39,7 +43,9 @@ pub fn Graph(comptime T: type) type {
 
             _ = vert1;
             _ = vert2;
-            // to be continued...
+
+            _ = try self.dijkstras(vert1, vert2, &map, 0);
+
             return 0;
         }
 
@@ -93,6 +99,36 @@ pub fn Graph(comptime T: type) type {
         }
 
         // === Private Functions and init/deinit ===
+
+        fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) !u64 {
+            if (begin == end) {
+                return map.get(begin).?;
+            }
+
+            try updateNeighbors(begin, map, path);
+
+            // TODO: to be continued...
+
+            _ = self;
+            _ = begin;
+            _ = end;
+            _ = map;
+            _ = path;
+
+            return 0;
+        }
+
+        fn updateNeighbors(current: *Vertex, map: *HashMap, path: u64) !void {
+
+            // reminder: incidence is list of ptrs to all edges touching vert
+            for (current.incidence.items) |edge| {
+                if (current == edge.v1) {
+                    try map.put(edge.v2, path + edge.weight);
+                } else if (current == edge.v2) {
+                    try map.put(edge.v1, path + edge.weight);
+                }
+            }
+        }
 
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);
