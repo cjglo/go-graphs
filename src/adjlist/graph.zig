@@ -26,6 +26,23 @@ pub fn Graph(comptime T: type) type {
             incidenceSpot2: **Edge, // same as above but for other Vertex it connects
         };
 
+        pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) u64 {
+            const vert1: *Vertex = try self.findVertexByName(vertName1);
+            const vert2: *Vertex = try self.findVertexByName(vertName2);
+
+            const map = std.array_hash_map.AutoArrayHashMap(*Vertex, u64).init(self.allocator);
+            defer map.deinit();
+
+            for (self.vertices.items) |vert| {
+                map.put(vert, std.math.maxInt());
+            }
+
+            _ = vert1;
+            _ = vert2;
+            // to be continued...
+            return 0;
+        }
+
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
             _ = T; // TODO: Current issue marked:  can't think of good reason to have generics
 

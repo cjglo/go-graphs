@@ -4,8 +4,7 @@ const graph = @import("graph.zig");
 const TestError = error{ Unimplemented, GraphInitFailure };
 
 // === Tests ===
-test "Expect ReadFromFile to initialize Graph successfully" {
-
+test "Expect ReadFromFile to initialize Graph w/o error" {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
     var g = try graph.Graph([]const u8).init(allocator); // take type and just initialize it
@@ -16,7 +15,21 @@ test "Expect ReadFromFile to initialize Graph successfully" {
 }
 
 test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 15" {
-    return error.SkipZigTest;
+    //return error.SkipZigTest;
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var allocator = gpa.allocator();
+    var g = try graph.Graph([]const u8).init(allocator); // take type and just initialize it
+
+    try g.readFromFile("example_graph.txt");
+
+    // actual test
+
+    const dist1 = g.findShortestPath("a", "f");
+
+    _ = dist1;
+
+    //return error.SkipZigTest;
 }
 
 test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 17" {
