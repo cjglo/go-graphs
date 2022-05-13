@@ -15,7 +15,7 @@ pub fn Graph(comptime T: type) type {
         // Incidences implemented as a ArrayList
         const Incidence = ArrayList(*Edge);
 
-        pub const Vertex = struct { name: []u8, index: u64, incidence: Incidence };
+        pub const Vertex = struct { name: []const u8, index: u64, incidence: Incidence };
 
         pub const Edge = struct {
             weight: u64,
@@ -26,15 +26,15 @@ pub fn Graph(comptime T: type) type {
             incidenceSpot2: **Edge, // same as above but for other Vertex it connects
         };
 
-        pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) u64 {
+        pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) !u64 {
             const vert1: *Vertex = try self.findVertexByName(vertName1);
             const vert2: *Vertex = try self.findVertexByName(vertName2);
 
-            const map = std.array_hash_map.AutoArrayHashMap(*Vertex, u64).init(self.allocator);
+            var map = std.array_hash_map.AutoArrayHashMap(*Vertex, u64).init(self.allocator);
             defer map.deinit();
 
             for (self.vertices.items) |vert| {
-                map.put(vert, std.math.maxInt());
+                try map.put(vert, std.math.maxInt(u64));
             }
 
             _ = vert1;
@@ -132,7 +132,7 @@ pub fn Graph(comptime T: type) type {
             try self.edges.append(edge);
         }
 
-        fn findVertexByName(self: *Self, name: []u8) GraphError!*Vertex {
+        fn findVertexByName(self: *Self, name: []const u8) GraphError!*Vertex {
             for (self.vertices.items) |vert| {
                 if (std.mem.eql(u8, vert.name, name)) return vert;
             }
@@ -140,17 +140,13 @@ pub fn Graph(comptime T: type) type {
         }
 
         pub fn deinit(self: *Self) !void {
-            // TODO: Do I need to check if 0? Might be handled internally
-            if (self.edges.items.len != 0) {
-                self.edges.deinit();
+            self.edges.deinit();
+
+            for (self.vertices.items) |vert| {
+                vert.incidence.deinit();
+                self.allocator.free(vert.name);
             }
-            for (self.vertices.items) |edge| {
-                edge.incidence.deinit();
-            }
-            if (self.vertices.items.len != 0) {
-                self.vertices.deinit();
-                // TODO: Need to deallocate names as well
-            }
+            self.vertices.deinit();
         }
 
         pub fn init(allocator: Allocator) !Self {

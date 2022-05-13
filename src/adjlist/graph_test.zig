@@ -9,6 +9,9 @@ test "Expect ReadFromFile to initialize Graph w/o error" {
     var allocator = gpa.allocator();
     var g = try graph.Graph([]const u8).init(allocator); // take type and just initialize it
 
+    var g2 = try graph.Graph([]const u8).init(allocator);
+    try g2.deinit();
+
     try g.readFromFile("example_graph.txt");
 
     try g.deinit();
@@ -27,7 +30,7 @@ test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 
 
     const dist1 = g.findShortestPath("a", "f");
 
-    _ = dist1;
+    _ = dist1 catch 0;
 
     //return error.SkipZigTest;
 }
