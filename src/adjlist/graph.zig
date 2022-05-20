@@ -29,6 +29,9 @@ pub fn Graph(comptime T: type) type {
         // map used for Dijkstra's
         const HashMap = std.array_hash_map.AutoArrayHashMap(*Vertex, u64);
 
+        // for Dijkstra's
+        const Heap = std.PriorityQueue(*Edge, u64, edgeSort);
+
         pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) !u64 {
             const vert1: *Vertex = try self.findVertexByName(vertName1);
             const vert2: *Vertex = try self.findVertexByName(vertName2);
@@ -105,17 +108,58 @@ pub fn Graph(comptime T: type) type {
                 return map.get(begin).?;
             }
 
+            // step 1
             try updateNeighbors(begin, map, path);
 
-            // TODO: to be continued...
+            // step 2
 
-            _ = self;
-            _ = begin;
-            _ = end;
-            _ = map;
-            _ = path;
+            // priortity queue and call on it
 
-            return 0;
+            var neighbors = try self.createQueueOfNeighbors(begin); // could make pointer instead return copy, not sure if better
+
+            var min: u64 = std.math.maxInt(u64);
+            while (neighbors.peek() != null) {
+                var edge: *Edge = neighbors.remove();
+                var newPath: u64 = undefined;
+                if (edge.v1 == begin) {
+                    newPath = self.dijkstras(edge.v2, end, map, path + edge.weight); // TODO: ERROR SETS NEED HANDLING HERE
+                } else {
+                    newPath = self.dijkstras(edge.v1, end, map, path + edge.weight); // TODO: ERROR SETS NEED HANDLING HERE
+                }
+                if (newPath < min) {
+                    min = newPath;
+                }
+            }
+
+            neighbors.deinit();
+            return min;
+        }
+
+        fn createQueueOfNeighbors(self: Self, origin: *Vertex) !Heap {
+            // TODO: Pushing edges for now seems like path fo least resitance, can change later
+            var neighbors = Heap.init(self.allocator, 1); // TODO: Does context matter here (second param)?
+
+            for (origin.incidence.items) |edge| {
+                if (edge.v1 == origin) {
+                    try neighbors.add(edge);
+                } else {
+                    try neighbors.add(edge);
+                }
+            }
+            return neighbors;
+        }
+
+        // for std lb sorting method in createQueueOfNeighbors
+        fn edgeSort(num: u64, edge1: *Edge, edge2: *Edge) std.math.Order {
+            _ = num; // TODO: what is this usually used for?
+
+            if (edge1.weight < edge2.weight) {
+                return std.math.Order.lt;
+            } else if (edge1.weight > edge2.weight) {
+                return std.math.Order.gt;
+            } else {
+                return std.math.Order.eq;
+            }
         }
 
         fn updateNeighbors(current: *Vertex, map: *HashMap, path: u64) !void {
