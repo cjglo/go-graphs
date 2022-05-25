@@ -38,15 +38,11 @@ pub fn Graph(comptime T: type) type {
             const vert2: *Vertex = try self.findVertexByName(vertName2);
 
             var map = HashMap.init(self.allocator);
-
             defer map.deinit();
 
             for (self.vertices.items) |vert| {
                 try map.put(vert, std.math.maxInt(u64));
             }
-
-            _ = vert1;
-            _ = vert2;
 
             _ = try self.dijkstras(vert1, vert2, &map, 0);
 
@@ -56,7 +52,6 @@ pub fn Graph(comptime T: type) type {
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
             _ = T; // TODO: Current issue marked:  can't think of good reason to have generics
 
-            // TODO: Leave this in? Good to deinit cause w/o could mem leak, but maybe user should handle
             try self.deinit();
             self.vertices = ArrayList(*Vertex).init(self.allocator);
             self.edges = ArrayList(*Edge).init(self.allocator);
@@ -119,6 +114,7 @@ pub fn Graph(comptime T: type) type {
             while (neighbors.peek() != null) {
                 var edge: *Edge = neighbors.remove();
                 var potentialAnswer: u64 = undefined;
+                std.debug.print("{s}", .{edge.v1.name});
                 if (edge.v1 == begin) {
                     potentialAnswer = self.dijkstras(edge.v2, end, map, path + edge.weight) catch std.math.maxInt(u64);
                 } else if (edge.v2 == begin) {
@@ -134,7 +130,7 @@ pub fn Graph(comptime T: type) type {
         }
 
         fn createQueueOfNeighbors(self: Self, origin: *Vertex) MemError!Heap {
-            // TODO: Pushing edges for now seems like path fo least resitance, can change later
+            // Pushing edges for now seems like path of least resitance, can change later
             var neighbors = Heap.init(self.allocator, 1); // TODO: Does context matter here (second param)?
             errdefer neighbors.deinit();
             for (origin.incidence.items) |edge| {
