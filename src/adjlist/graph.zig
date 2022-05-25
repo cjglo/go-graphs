@@ -2,6 +2,7 @@ const std = @import("std");
 const Reader = std.fs.File.Reader;
 const ArrayList = std.ArrayList;
 const Allocator = std.mem.Allocator;
+const MemError = std.mem.Allocator.Error;
 const GraphError = error{VertexNotFound};
 
 pub fn Graph(comptime T: type) type {
@@ -103,46 +104,41 @@ pub fn Graph(comptime T: type) type {
 
         // === Private Functions and init/deinit ===
 
-        fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) !u64 {
+        fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) MemError!u64 {
             if (begin == end) {
                 return map.get(begin).?;
             }
 
             // step 1
-            try updateNeighbors(begin, map, path);
+            updateNeighbors(begin, map, path);
 
             // step 2
-
-            // priortity queue and call on it
-
             var neighbors = try self.createQueueOfNeighbors(begin); // could make pointer instead return copy, not sure if better
 
-            var min: u64 = std.math.maxInt(u64);
+            var answer: u64 = std.math.maxInt(u64);
             while (neighbors.peek() != null) {
                 var edge: *Edge = neighbors.remove();
-                var newPath: u64 = undefined;
+                var potentialAnswer: u64 = undefined;
                 if (edge.v1 == begin) {
-                    newPath = self.dijkstras(edge.v2, end, map, path + edge.weight); // TODO: ERROR SETS NEED HANDLING HERE
-                } else {
-                    newPath = self.dijkstras(edge.v1, end, map, path + edge.weight); // TODO: ERROR SETS NEED HANDLING HERE
+                    potentialAnswer = self.dijkstras(edge.v2, end, map, path + edge.weight) catch std.math.maxInt(u64);
+                } else if (edge.v2 == begin) {
+                    potentialAnswer = self.dijkstras(edge.v1, end, map, path + edge.weight) catch std.math.maxInt(u64);
                 }
-                if (newPath < min) {
-                    min = newPath;
+                if (potentialAnswer < answer) {
+                    answer = potentialAnswer;
                 }
             }
 
             neighbors.deinit();
-            return min;
+            return answer;
         }
 
-        fn createQueueOfNeighbors(self: Self, origin: *Vertex) !Heap {
+        fn createQueueOfNeighbors(self: Self, origin: *Vertex) MemError!Heap {
             // TODO: Pushing edges for now seems like path fo least resitance, can change later
             var neighbors = Heap.init(self.allocator, 1); // TODO: Does context matter here (second param)?
-
+            errdefer neighbors.deinit();
             for (origin.incidence.items) |edge| {
-                if (edge.v1 == origin) {
-                    try neighbors.add(edge);
-                } else {
+                if (edge.v1 == origin or edge.v2 == origin) {
                     try neighbors.add(edge);
                 }
             }
@@ -162,14 +158,15 @@ pub fn Graph(comptime T: type) type {
             }
         }
 
-        fn updateNeighbors(current: *Vertex, map: *HashMap, path: u64) !void {
+        fn updateNeighbors(current: *Vertex, map: *HashMap, path: u64) void {
 
             // reminder: incidence is list of ptrs to all edges touching vert
             for (current.incidence.items) |edge| {
+                // using unreachable since this is review project and not robust data struct lib
                 if (current == edge.v1) {
-                    try map.put(edge.v2, path + edge.weight);
+                    map.put(edge.v2, path + edge.weight) catch unreachable;
                 } else if (current == edge.v2) {
-                    try map.put(edge.v1, path + edge.weight);
+                    map.put(edge.v1, path + edge.weight) catch unreachable;
                 }
             }
         }
