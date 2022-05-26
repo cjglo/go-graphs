@@ -16,7 +16,7 @@ pub fn Graph(comptime T: type) type {
         // Incidences implemented as a ArrayList
         const Incidence = ArrayList(*Edge);
 
-        pub const Vertex = struct { name: []const u8, index: u64, incidence: Incidence };
+        pub const Vertex = struct { name: []const u8, index: u64, incidence: Incidence, visited: bool };
 
         pub const Edge = struct {
             weight: u64,
@@ -44,9 +44,7 @@ pub fn Graph(comptime T: type) type {
                 try map.put(vert, std.math.maxInt(u64));
             }
 
-            _ = try self.dijkstras(vert1, vert2, &map, 0);
-
-            return 0;
+            return self.dijkstras(vert1, vert2, &map, 0);
         }
 
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
@@ -101,8 +99,13 @@ pub fn Graph(comptime T: type) type {
 
         fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) MemError!u64 {
             if (begin == end) {
+                // std.debug.print("\n found {s}. \n values are: {any} \n Keys: \n", .{begin.name, map.values()});
+                // for(map.keys()) |key| {
+                //     std.debug.print("{s}", .{key.name});
+                // }
                 return map.get(begin).?;
             }
+            begin.visited = true;
 
             // step 1
             updateNeighbors(begin, map, path);
@@ -110,11 +113,19 @@ pub fn Graph(comptime T: type) type {
             // step 2
             var neighbors = try self.createQueueOfNeighbors(begin); // could make pointer instead return copy, not sure if better
 
+            // for (neighbors.items) |edge| {
+            //     if(edge == null) {
+            //         std.debug.print("One null", .{});
+            //     }
+            //     std.debug.print("\nedge.weight: {}", .{edge.weight});
+            // }
+
+            defer neighbors.deinit();
+
             var answer: u64 = std.math.maxInt(u64);
             while (neighbors.peek() != null) {
                 var edge: *Edge = neighbors.remove();
                 var potentialAnswer: u64 = undefined;
-                std.debug.print("{s}", .{edge.v1.name});
                 if (edge.v1 == begin) {
                     potentialAnswer = self.dijkstras(edge.v2, end, map, path + edge.weight) catch std.math.maxInt(u64);
                 } else if (edge.v2 == begin) {
@@ -125,7 +136,6 @@ pub fn Graph(comptime T: type) type {
                 }
             }
 
-            neighbors.deinit();
             return answer;
         }
 
@@ -134,7 +144,7 @@ pub fn Graph(comptime T: type) type {
             var neighbors = Heap.init(self.allocator, 1); // TODO: Does context matter here (second param)?
             errdefer neighbors.deinit();
             for (origin.incidence.items) |edge| {
-                if (edge.v1 == origin or edge.v2 == origin) {
+                if ((edge.v1 == origin and !edge.v2.visited) or (edge.v2 == origin and !edge.v1.visited)) {
                     try neighbors.add(edge);
                 }
             }
@@ -167,6 +177,8 @@ pub fn Graph(comptime T: type) type {
             }
         }
 
+        // TODO: Function to set all verts to unvisited
+
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);
 
@@ -178,6 +190,7 @@ pub fn Graph(comptime T: type) type {
             vert.name = nameClone;
             vert.incidence = Incidence.init(allocator);
             vert.index = self.vertices.items.len;
+            vert.visited = false;
             // decided to append rather than return because of vert.index.  Could cause issues to set index, but have outer function append
             // not an issue to just append since this is private and will always want to append if this is run anyway
             try self.vertices.append(vert);

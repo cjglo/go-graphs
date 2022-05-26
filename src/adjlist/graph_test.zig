@@ -1,7 +1,7 @@
 const std = @import("std");
 const graph = @import("graph.zig");
 
-const TestError = error{ Unimplemented, GraphInitFailure };
+const TestError = error{ LeftDidNotEqualRight };
 
 // === Tests ===
 test "Expect ReadFromFile to initialize Graph w/o error" {
@@ -26,13 +26,17 @@ test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 
 
     try g.readFromFile("example_graph.txt");
 
+    std.debug.print("\n--\n", .{});
     // actual test
 
-    const dist1 = g.findShortestPath("a", "f");
+    const dist = try g.findShortestPath("a", "f");
+    std.debug.print("dist was {} not 15", .{dist});
+    std.debug.print("\n--\n", .{});
 
-    _ = dist1 catch 0;
-
-    //return error.SkipZigTest;
+    if(dist != 15) {
+        std.debug.print("dist was {} not 15", .{dist});
+        // return TestError.LeftDidNotEqualRight;
+    }
 }
 
 test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 17" {
