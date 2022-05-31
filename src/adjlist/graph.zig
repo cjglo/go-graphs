@@ -99,10 +99,6 @@ pub fn Graph(comptime T: type) type {
 
         fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) MemError!u64 {
             if (begin == end) {
-                // std.debug.print("\n found {s}. \n values are: {any} \n Keys: \n", .{begin.name, map.values()});
-                // for(map.keys()) |key| {
-                //     std.debug.print("{s}", .{key.name});
-                // }
                 return map.get(begin).?;
             }
             begin.visited = true;
@@ -112,13 +108,6 @@ pub fn Graph(comptime T: type) type {
 
             // step 2
             var neighbors = try self.createQueueOfNeighbors(begin); // could make pointer instead return copy, not sure if better
-
-            // for (neighbors.items) |edge| {
-            //     if(edge == null) {
-            //         std.debug.print("One null", .{});
-            //     }
-            //     std.debug.print("\nedge.weight: {}", .{edge.weight});
-            // }
 
             defer neighbors.deinit();
 
@@ -141,7 +130,7 @@ pub fn Graph(comptime T: type) type {
 
         fn createQueueOfNeighbors(self: Self, origin: *Vertex) MemError!Heap {
             // Pushing edges for now seems like path of least resitance, can change later
-            var neighbors = Heap.init(self.allocator, 1); // TODO: Does context matter here (second param)?
+            var neighbors = Heap.init(self.allocator, 1);
             errdefer neighbors.deinit();
             for (origin.incidence.items) |edge| {
                 if ((edge.v1 == origin and !edge.v2.visited) or (edge.v2 == origin and !edge.v1.visited)) {
@@ -165,14 +154,15 @@ pub fn Graph(comptime T: type) type {
         }
 
         fn updateNeighbors(current: *Vertex, map: *HashMap, path: u64) void {
-
             // reminder: incidence is list of ptrs to all edges touching vert
             for (current.incidence.items) |edge| {
                 // using unreachable since this is review project and not robust data struct lib
                 if (current == edge.v1) {
-                    map.put(edge.v2, path + edge.weight) catch unreachable;
+                    const currentDist = map.get(edge.v2) orelse std.math.maxInt(u64);
+                    if (currentDist > path + edge.weight) map.put(edge.v2, path + edge.weight) catch unreachable;
                 } else if (current == edge.v2) {
-                    map.put(edge.v1, path + edge.weight) catch unreachable;
+                    const currentDist = map.get(edge.v1) orelse std.math.maxInt(u64);
+                    if (currentDist > path + edge.weight) map.put(edge.v1, path + edge.weight) catch unreachable;
                 }
             }
         }
