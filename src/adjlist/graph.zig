@@ -44,7 +44,9 @@ pub fn Graph(comptime T: type) type {
                 try map.put(vert, std.math.maxInt(u64));
             }
 
-            return self.dijkstras(vert1, vert2, &map, 0);
+            const answer = self.dijkstras(vert1, vert2, &map, 0);
+            self.setAllAsUnvisited();
+            return answer;
         }
 
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
@@ -93,6 +95,13 @@ pub fn Graph(comptime T: type) type {
                     try self.createVertex(self.allocator, line);
                 }
             }
+        }
+
+        pub fn doesNameExistInGraph(self: Self, name: [:0]const u8) bool {
+            for (self.vertices.items) |vert| {
+                if (std.mem.eql(u8, vert.name, name)) return true;
+            }
+            return false;
         }
 
         // === Private Functions and init/deinit ===
@@ -167,7 +176,11 @@ pub fn Graph(comptime T: type) type {
             }
         }
 
-        // TODO: Function to set all verts to unvisited
+        fn setAllAsUnvisited(self: Self) void {
+            for (self.vertices.items) |vert| {
+                vert.visited = false;
+            }
+        }
 
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);
