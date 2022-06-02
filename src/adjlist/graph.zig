@@ -44,7 +44,9 @@ pub fn Graph(comptime T: type) type {
                 try map.put(vert, std.math.maxInt(u64));
             }
 
-            return self.dijkstras(vert1, vert2, &map, 0);
+            const answer = self.dijkstras(vert1, vert2, &map, 0);
+            self.setAllAsUnvisited();
+            return answer;
         }
 
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
@@ -131,7 +133,6 @@ pub fn Graph(comptime T: type) type {
                     answer = potentialAnswer;
                 }
             }
-            self.setAllAsUnvisited();
 
             return answer;
         }
