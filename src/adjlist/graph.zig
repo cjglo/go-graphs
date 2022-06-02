@@ -12,7 +12,6 @@ pub fn Graph(comptime T: type) type {
         edges: ArrayList(*Edge),
         allocator: Allocator,
 
-        // Vertex and Edge Structs
         // Incidences implemented as a ArrayList
         const Incidence = ArrayList(*Edge);
 
@@ -29,8 +28,7 @@ pub fn Graph(comptime T: type) type {
 
         // map used for Dijkstra's
         const HashMap = std.array_hash_map.AutoArrayHashMap(*Vertex, u64);
-
-        // for Dijkstra's
+        // Priority Queue for Dijkstra's
         const Heap = std.PriorityQueue(*Edge, u64, edgeSort);
 
         pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) !u64 {
@@ -44,15 +42,14 @@ pub fn Graph(comptime T: type) type {
                 try map.put(vert, std.math.maxInt(u64));
             }
 
-            const answer = self.dijkstras(vert1, vert2, &map, 0);
-            self.setAllAsUnvisited();
-            return answer;
+            defer self.setAllAsUnvisited();
+            return self.dijkstras(vert1, vert2, &map, 0);
         }
 
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
             _ = T; // TODO: Current issue marked:  can't think of good reason to have generics
 
-            try self.deinit();
+            self.deinit();
             self.vertices = ArrayList(*Vertex).init(self.allocator);
             self.edges = ArrayList(*Edge).init(self.allocator);
 
@@ -117,7 +114,6 @@ pub fn Graph(comptime T: type) type {
 
             // step 2
             var neighbors = try self.createQueueOfNeighbors(begin); // could make pointer instead return copy, not sure if better
-
             defer neighbors.deinit();
 
             var answer: u64 = std.math.maxInt(u64);
@@ -133,7 +129,6 @@ pub fn Graph(comptime T: type) type {
                     answer = potentialAnswer;
                 }
             }
-
             return answer;
         }
 
@@ -149,9 +144,9 @@ pub fn Graph(comptime T: type) type {
             return neighbors;
         }
 
-        // for std lb sorting method in createQueueOfNeighbors
+        // for sorting method in createQueueOfNeighbors, it is part of type declaration for Heap
         fn edgeSort(num: u64, edge1: *Edge, edge2: *Edge) std.math.Order {
-            _ = num; // TODO: what is this usually used for?
+            _ = num; // TODO: this is required param for creating Heap type, what is it neeed for?
 
             if (edge1.weight < edge2.weight) {
                 return std.math.Order.lt;
@@ -217,7 +212,7 @@ pub fn Graph(comptime T: type) type {
             edge.incidenceSpot2 = &v2.incidence.items[index2]; // same as above but for vertex 2
 
             edge.index = self.edges.items.len;
-            // decided to append rather than return because of edge.index.  Could cause issues to set index, but have outer function append
+            // decided to append inside this fn rather than return because of edge.index.  Could cause issues if set index and have outer function append
             try self.edges.append(edge);
         }
 
@@ -228,7 +223,7 @@ pub fn Graph(comptime T: type) type {
             return GraphError.VertexNotFound;
         }
 
-        pub fn deinit(self: *Self) !void {
+        pub fn deinit(self: *Self) void {
             self.edges.deinit();
 
             for (self.vertices.items) |vert| {
