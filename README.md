@@ -2,13 +2,15 @@
 
 My library for creating various Graph implementations.  No resources used for this other than by old C++ data structures book to remember how to build and the png `Graph` as a starting point for the Graph.
 
+I have implemented both edge and adjacency list implementations, may return in future to add a matrix implementation.
+
 ## Tools
 
 I decided to mix up the langauges to keep things interesting. So far:
 
 1. Edge List Implementation -> Go
 2. Adjacency List Implementation -> Zig 
-3. Matrix Implementation -> TBD (Leaning towards C++...maybe Zig again)
+3. (Future Project) Matrix Implementation -> TBD (Leaning towards C++...maybe Zig again)
 
 ### Properties
 
@@ -19,6 +21,8 @@ Each Graph will implement:
 1. ReadFromFile -> Algorithm to read in custom graph language (below) and create graph
 2. FindShortestPath -> Shortest path from a two given Vertices (Dijkstra's)
 3. DoesNameExistInGraph -> Return true if a name matches the name of any vertex, else return false
+
+And various private methods to accomplish the above.
 
 The read algorithm that will create graph from text will work like this: (anything after // is comment about line)
 
