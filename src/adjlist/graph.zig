@@ -95,6 +95,13 @@ pub fn Graph(comptime T: type) type {
             }
         }
 
+        pub fn doesNameExistInGraph(self: Self, name: [:0]const u8) bool {
+            for (self.vertices.items) |vert| {
+                if (std.mem.eql(u8, vert.name, name)) return true;
+            }
+            return false;
+        }
+
         // === Private Functions and init/deinit ===
 
         fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) MemError!u64 {
@@ -124,6 +131,7 @@ pub fn Graph(comptime T: type) type {
                     answer = potentialAnswer;
                 }
             }
+            self.setAllAsUnvisited();
 
             return answer;
         }
@@ -167,7 +175,11 @@ pub fn Graph(comptime T: type) type {
             }
         }
 
-        // TODO: Function to set all verts to unvisited
+        fn setAllAsUnvisited(self: Self) void {
+            for (self.vertices.items) |vert| {
+                vert.visited = false;
+            }
+        }
 
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);

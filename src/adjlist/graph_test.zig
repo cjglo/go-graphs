@@ -1,7 +1,7 @@
 const std = @import("std");
 const graph = @import("graph.zig");
 
-const TestError = error{LeftDidNotEqualRight};
+const TestError = error{ LeftDidNotEqualRight, CanNotFindNameInGraph, FoundNameInGraphThatDoesNotExist };
 
 // === Tests ===
 test "Expect ReadFromFile to initialize Graph w/o error" {
@@ -47,10 +47,24 @@ test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 
     }
 }
 
-test "Expect DoesNameExistInGraph to return true for \"a\"" {
-    return error.SkipZigTest;
+test "Expect doesNameExistInGraph to return true for \"a\"" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var allocator = gpa.allocator();
+    var g = try graph.Graph([]const u8).init(allocator); // take type and just initialize it
+
+    try g.readFromFile("example_graph.txt");
+
+    // actual test
+    if (!g.doesNameExistInGraph("a")) return TestError.CanNotFindNameInGraph;
 }
 
-test "Expect DoesNameExistInGraph to return false for \"z\"" {
-    return error.SkipZigTest;
+test "Expect doesNameExistInGraph to return false for \"z\"" {
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var allocator = gpa.allocator();
+    var g = try graph.Graph([]const u8).init(allocator); // take type and just initialize it
+
+    try g.readFromFile("example_graph.txt");
+
+    //actual test
+    if (g.doesNameExistInGraph("z")) return TestError.FoundNameInGraphThatDoesNotExist;
 }
