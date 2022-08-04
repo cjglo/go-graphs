@@ -5,15 +5,16 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <map>
+#include "edge.h"
 
 class Graph {
     public:
         Graph();
         void read_from_file(std::string file_name);
-
         
     private:
-        std::vector<std::vector<bool>> adj_matrix;
+        Edge*** adj_matrix;
         
 };
 

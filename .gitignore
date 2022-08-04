@@ -5,6 +5,7 @@
 *.so
 *.dylib
 zig-cache/
+zig-out/
 */zig-cache/
 build/
 build-*/
