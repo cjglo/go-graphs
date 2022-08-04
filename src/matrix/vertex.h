@@ -12,6 +12,10 @@ class Vertex {
 
         void unvisit();
 
+        int get_index();
+
+        void set_index(int index);
+
     private:
         std::string name;
         bool visited;

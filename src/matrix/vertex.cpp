@@ -15,3 +15,11 @@ void Vertex::visit() {
 void Vertex::unvisit() {
     this->visited = false;
 }
+
+int Vertex::get_index() {
+    return this->index;
+}
+
+void Vertex::set_index(int index) {
+    this->index = index;
+}

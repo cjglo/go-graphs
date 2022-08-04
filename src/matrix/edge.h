@@ -5,9 +5,9 @@
 
 class Edge {
 
-    Edge(int weight, Vertex* v1, Vertex* v2);
-
     public:
+        Edge(int weight, Vertex* v1, Vertex* v2);
+        
         int get_weight();
 
         int set_weight(int weight);

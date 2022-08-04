@@ -24,9 +24,9 @@ void Graph::read_from_file(string file_name) {
             
             if(line[0] != '-') {
                 // Vertex found and needs to be made
-                vertex_counter++;
                 Vertex* vert = new Vertex(line, vertex_counter);
                 m[line] = vert;
+                vertex_counter++;
             }
             else if(no_edge_yet && line[0] == '-') {
                 no_edge_yet = false;
@@ -37,29 +37,44 @@ void Graph::read_from_file(string file_name) {
                 }
                 for(int i = 0; i<vertex_counter; i++) {
                     for(int j = 0; j<vertex_counter; j++) {
-                        adj_matrix[i] = nullptr;
+                        adj_matrix[i][j] = nullptr;
                     }
                 }
             }
 
             if(line[0] == '-') {
-                // TODO make edges
+                int weight = 0;
+                string v1_name = "";
+                bool v1_done = false;
+                string v2_name = "";
+                for(auto letter : line) {
+                    // TODO Parser here is pretty messy, may want to rewrite
+                    // NOTE: Since excerise is about graph practice and not error handling, parser assumes correct input
+                    if(letter == '-') continue;
+                    if(letter >= '0' && letter <= '9') {
+                        weight *= 10; // move num over digits insert next digit
+                        weight += letter - '0';
+                    } else if(letter == ' ' && v1_name.size() > 0) {
+                        v1_done = true;
+                    } else if(letter != '-' && letter != ' ') {
+                        if(v1_done) v2_name += letter;
+                        else v1_name += letter;
+                    }
+                }
+                Vertex* v1 = m[v1_name];
+                Vertex* v2 = m[v2_name];
+
+                Edge* edge = new Edge(weight, v1, v2);
+
+                int i = v1->get_index();
+                int j = v2->get_index();  
+
+                adj_matrix[i][j] = edge;
+                adj_matrix[j][i] = edge;
             }
-
-
-
         }
     } else {
         std::cout<< "Error Reading File" <<std::endl; // TODO: Create wrapper or exception
     }
-        
-
 }
 
-/*
-read file steps"
-1. count up vertexes => as count make vertex, give index and put in map <name, ptr>\
-2. Once total number found, build matrix and fill with null_ptrs
-3. Build edge with weight, use names to assign pointers, place it in array where indexes meet
-
-*/
