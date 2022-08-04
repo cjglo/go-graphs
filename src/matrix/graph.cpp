@@ -4,7 +4,7 @@ using std::string;
 using std::ifstream;
 using std::map;
 
-Graph::Graph() {
+Graph::Graph() : vert_name_to_ptr() {
     this->adj_matrix = nullptr;
 }
 
@@ -15,7 +15,6 @@ void Graph::read_from_file(string file_name) {
     if(graph_file.is_open()) {
 
         int vertex_counter = 0;
-        map<string, Vertex*> m;
         bool no_edge_yet = true;
 
         while(getline(graph_file,line)) {
@@ -25,7 +24,7 @@ void Graph::read_from_file(string file_name) {
             if(line[0] != '-') {
                 // Vertex found and needs to be made
                 Vertex* vert = new Vertex(line, vertex_counter);
-                m[line] = vert;
+                vert_name_to_ptr[line] = vert;
                 vertex_counter++;
             }
             else if(no_edge_yet && line[0] == '-') {
@@ -61,8 +60,8 @@ void Graph::read_from_file(string file_name) {
                         else v1_name += letter;
                     }
                 }
-                Vertex* v1 = m[v1_name];
-                Vertex* v2 = m[v2_name];
+                Vertex* v1 = vert_name_to_ptr[v1_name];
+                Vertex* v2 = vert_name_to_ptr[v2_name];
 
                 Edge* edge = new Edge(weight, v1, v2);
 
@@ -77,4 +76,23 @@ void Graph::read_from_file(string file_name) {
         std::cout<< "Error Reading File" <<std::endl; // TODO: Create wrapper or exception
     }
 }
+
+int Graph::find_shortest_path(string v1_name, string v2_name) {
+
+    if(vert_name_to_ptr.find(v1_name) == vert_name_to_ptr.end() 
+        || vert_name_to_ptr.find(v2_name) == vert_name_to_ptr.end()) {
+        // error handling for if either name does not exist, could make exception class
+        return -1;
+    }
+
+    Vertex* vert1 = vert_name_to_ptr[v1_name];
+    Vertex* vert2 = vert_name_to_ptr[v2_name];
+
+    // TODO continue here
+
+
+}
+
+
+// Private Methods Implementations
 
