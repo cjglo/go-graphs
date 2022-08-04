@@ -31,13 +31,13 @@ void Graph::read_from_file(string file_name) {
             else if(no_edge_yet && line[0] == '-') {
                 no_edge_yet = false;
                 // constructing matrix before processing edges
-                this->adj_matrix = new int*[vertex_counter];
+                this->adj_matrix = new Edge**[vertex_counter];
                 for(int i = 0; i<vertex_counter; i++) {
-                    adj_matrix[i] = new int[vertex_counter];
+                    adj_matrix[i] = new Edge*[vertex_counter];
                 }
-                for(auto row : adj_matrix) {
-                    for(auto cell : row) {
-                        cell = nullptr;
+                for(int i = 0; i<vertex_counter; i++) {
+                    for(int j = 0; j<vertex_counter; j++) {
+                        adj_matrix[i] = nullptr;
                     }
                 }
             }
