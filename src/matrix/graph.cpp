@@ -6,6 +6,7 @@ using std::map;
 
 Graph::Graph() : vert_name_to_ptr() {
     this->adj_matrix = nullptr;
+    this->num_of_vertices = 0;
 }
 
 void Graph::read_from_file(string file_name) {
@@ -72,6 +73,8 @@ void Graph::read_from_file(string file_name) {
                 adj_matrix[j][i] = edge;
             }
         }
+
+        this->num_of_vertices = vertex_counter;
     } else {
         std::cout<< "Error Reading File" <<std::endl; // TODO: Create wrapper or exception
     }
@@ -121,6 +124,24 @@ int Graph::dijkstras(Vertex* begin, Vertex* end, map<Vertex*,int> &m, int path) 
 
 void Graph::update_neighbors(Vertex* current, map<Vertex*,int> m, int path) {
 
+    // Go through row or column on matrix
+
+    for(int i = 0; i<this->num_of_vertices; i++) {
+
+        if(this->adj_matrix[current->get_index()][i] != nullptr) {
+
+            int weight = this->adj_matrix[current->get_index()][i]->get_weight();
+
+            // find all edges that are not nullptr
+
+            // find vertex that is != current
     
+            // update value in matrix
+
+        }
+
+    }
+
+
 
 }

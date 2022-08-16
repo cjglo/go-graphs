@@ -22,6 +22,7 @@ class Graph {
         void update_neighbors(Vertex* current, map<Vertex*,int> m, int path);
         Edge*** adj_matrix;
         std::map<std::string, Vertex*> vert_name_to_ptr;
+        int num_of_vertices;
 };
 
 #endif
