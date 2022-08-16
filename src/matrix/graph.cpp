@@ -3,6 +3,10 @@ using std::vector;
 using std::string;
 using std::ifstream;
 using std::map;
+using std::priority_queue;
+using std::pair;
+
+typedef priority_queue<pair<int,Vertex*>, vector<pair<int,Vertex*>>, std::greater<pair<int,Vertex*>>> heap;
 
 Graph::Graph() : vert_name_to_ptr() {
     this->adj_matrix = nullptr;
@@ -117,31 +121,46 @@ int Graph::dijkstras(Vertex* begin, Vertex* end, map<Vertex*,int> &m, int path) 
 
     begin->visit();
 
+    update_neighbors(begin, m, path);
+
+    
+
 
 
 
 }
 
-void Graph::update_neighbors(Vertex* current, map<Vertex*,int> m, int path) {
-
-    // Go through row or column on matrix
-
+void Graph::update_neighbors(Vertex* current, map<Vertex*,int> &m, int path) {
     for(int i = 0; i<this->num_of_vertices; i++) {
 
         if(this->adj_matrix[current->get_index()][i] != nullptr) {
 
-            int weight = this->adj_matrix[current->get_index()][i]->get_weight();
+            Edge* edge = this->adj_matrix[current->get_index()][i];
 
-            // find all edges that are not nullptr
+            int weight = edge->get_weight();
 
-            // find vertex that is != current
-    
-            // update value in matrix
+            if(edge->get_v1() != current) {
+                m[edge->get_v1()] = std::min(m[edge->get_v1()], path + weight);
+            } 
+            else if(edge->get_v2() != current) {
+                m[edge->get_v2()] = std::min(m[edge->get_v2()], path + weight);
+            }
+        }
+    }
+}
+
+void Graph::create_neighbors_min_heap(Vertex* current) {
+    for(int i = 0; i<this->num_of_vertices; i++) {
+
+        if(this->adj_matrix[current->get_index()][i] != nullptr) {
+
+            Edge* edge = this->adj_matrix[current->get_index()][i];
+
+            if(edge->get_v1() != current) {
+
+            }
 
         }
 
     }
-
-
-
 }

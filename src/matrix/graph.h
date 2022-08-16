@@ -18,11 +18,14 @@ class Graph {
         
         
     private:
-        int dijkstras(Vertex* begin, Vertex* end, std::map<Vertex*,int> &m, int path);
-        void update_neighbors(Vertex* current, map<Vertex*,int> m, int path);
         Edge*** adj_matrix;
         std::map<std::string, Vertex*> vert_name_to_ptr;
         int num_of_vertices;
+
+        int dijkstras(Vertex* begin, Vertex* end, std::map<Vertex*,int> &m, int path);
+        void update_neighbors(Vertex* current, std::map<Vertex*,int> &m, int path);
+        void create_neighbors_min_heap(Vertex* current);
+        
 };
 
 #endif
