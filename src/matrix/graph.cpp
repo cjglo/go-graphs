@@ -6,8 +6,6 @@ using std::map;
 using std::priority_queue;
 using std::pair;
 
-typedef priority_queue<pair<int,Vertex*>, vector<pair<int,Vertex*>>, std::greater<pair<int,Vertex*>>> heap;
-
 Graph::Graph() : vert_name_to_ptr() {
     this->adj_matrix = nullptr;
     this->num_of_vertices = 0;
@@ -123,11 +121,17 @@ int Graph::dijkstras(Vertex* begin, Vertex* end, map<Vertex*,int> &m, int path) 
 
     update_neighbors(begin, m, path);
 
-    
+    heap hp = create_neighbors_min_heap(begin);
 
+    int distance = INT_MAX;
+    while(!hp.empty()) {
 
-
-
+        Vertex* next = hp.top().second;
+        int weight = hp.top().first;
+        hp.pop();
+        distance = std::min(distance, this->dijkstras(next, end, m, path + weight));
+    }
+    return distance;
 }
 
 void Graph::update_neighbors(Vertex* current, map<Vertex*,int> &m, int path) {
@@ -149,18 +153,26 @@ void Graph::update_neighbors(Vertex* current, map<Vertex*,int> &m, int path) {
     }
 }
 
-void Graph::create_neighbors_min_heap(Vertex* current) {
+heap Graph::create_neighbors_min_heap(Vertex* current) {
+
+    heap hp;
+
     for(int i = 0; i<this->num_of_vertices; i++) {
 
         if(this->adj_matrix[current->get_index()][i] != nullptr) {
 
             Edge* edge = this->adj_matrix[current->get_index()][i];
 
-            if(edge->get_v1() != current) {
-
+            if(edge->get_v1() != current && !edge->get_v1()->was_visited()) {
+                hp.push(std::make_pair(edge->get_weight(), edge->get_v1()));
+            }
+            else if(edge->get_v2() != current && !edge->get_v2()->was_visited()) {
+                hp.push(std::make_pair(edge->get_weight(), edge->get_v2()));
             }
 
         }
 
     }
+
+    return hp;
 }

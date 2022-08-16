@@ -10,6 +10,8 @@
 #include "vertex.h"
 #include <bits/stdc++.h>
 
+typedef std::priority_queue<std::pair<int,Vertex*>, std::vector<std::pair<int,Vertex*>>, std::greater<std::pair<int,Vertex*>>> heap;
+
 class Graph {
     public:
         Graph();
@@ -24,7 +26,7 @@ class Graph {
 
         int dijkstras(Vertex* begin, Vertex* end, std::map<Vertex*,int> &m, int path);
         void update_neighbors(Vertex* current, std::map<Vertex*,int> &m, int path);
-        void create_neighbors_min_heap(Vertex* current);
+        heap create_neighbors_min_heap(Vertex* current);
         
 };
 
