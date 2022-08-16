@@ -88,11 +88,39 @@ int Graph::find_shortest_path(string v1_name, string v2_name) {
     Vertex* vert1 = vert_name_to_ptr[v1_name];
     Vertex* vert2 = vert_name_to_ptr[v2_name];
 
-    // TODO continue here
+    map<Vertex*, int> m;
 
+    for(auto pair : this->vert_name_to_ptr) {
+        m[pair.second] = INT_MAX;
+    }
 
+    int dist = this->dijkstras(vert1, vert2, m, 0);
+
+    for(auto pair : m) {
+        pair.first->unvisit();
+    }
+
+    return dist;
 }
 
 
 // Private Methods Implementations
 
+int Graph::dijkstras(Vertex* begin, Vertex* end, map<Vertex*,int> &m, int path) {
+
+    if(begin == end) {
+        return m[begin];
+    }
+
+    begin->visit();
+
+
+
+
+}
+
+void Graph::update_neighbors(Vertex* current, map<Vertex*,int> m, int path) {
+
+    
+
+}
