@@ -8,6 +8,8 @@ class Vertex {
     public:
         Vertex(std::string name, int index);
 
+        bool was_visited();
+
         void visit();
 
         void unvisit();

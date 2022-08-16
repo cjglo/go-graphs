@@ -8,6 +8,10 @@ Vertex::Vertex(string name, int index) {
     this->visited = false;
 }
 
+bool Vertex::was_visited() {
+    return this->visited;
+}
+
 void Vertex::visit() {
     this->visited = true;
 }
