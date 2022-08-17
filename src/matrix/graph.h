@@ -17,6 +17,8 @@ class Graph {
         Graph();
         void read_from_file(std::string file_name);
         int find_shortest_path(std::string v1_name, std::string v2_name);
+        bool does_vertex_exist_in_graph(std::string vertex_name);
+        bool is_empty();
         
         
     private:
