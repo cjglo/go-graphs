@@ -108,6 +108,21 @@ int Graph::find_shortest_path(string v1_name, string v2_name) {
     return dist;
 }
 
+bool Graph::does_vertex_exist_in_graph(string vertex_name) {
+    if(this->vert_name_to_ptr.find(vertex_name) != this->vert_name_to_ptr.end()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool Graph::is_empty() {
+    if(this->num_of_vertices < 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 // Private Methods Implementations
 
