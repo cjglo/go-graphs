@@ -7,11 +7,14 @@
 #include <string>
 #include <map>
 #include <exception>
+
 #include "edge.h"
 #include "vertex.h"
 #include <bits/stdc++.h>
 
-typedef std::priority_queue<std::pair<int,Vertex*>, std::vector<std::pair<int,Vertex*>>, std::greater<std::pair<int,Vertex*>>> heap;
+// min heap based on distance (int)
+typedef std::pair<int,Vertex*> distance_and_vert;
+typedef std::priority_queue<distance_and_vert, std::vector<distance_and_vert>, std::greater<distance_and_vert>> heap;
 
 class Graph {
     public:

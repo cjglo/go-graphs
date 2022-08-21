@@ -37,13 +37,26 @@ void test_shortest_path_f_to_d()
     IS_TRUE(dist == DISTANCE_F_TO_D);
 }
 
+void test_shortest_path_e_to_e()
+{
+    const int DISTANCE_E_TO_E = 0;
+    Graph graph;
+    string file = "example_graph.txt";
+    graph.read_from_file(file);
+    int dist = graph.find_shortest_path("e", "e"); // 0
+
+    IS_TRUE(dist == DISTANCE_E_TO_E);
+}
+
 void test_find_c_exists_in_graph()
 {
     Graph graph;
     string file = "example_graph.txt";
     graph.read_from_file(file);
 
-    IS_TRUE(graph.does_vertex_exist_in_graph("c"));
+    Graph graph2("example_graph.txt");
+
+    IS_TRUE(graph.does_vertex_exist_in_graph("c") && graph2.does_vertex_exist_in_graph("c"));
 }
 
 void test_find_z_does_not_exist_in_graph()
@@ -52,7 +65,9 @@ void test_find_z_does_not_exist_in_graph()
     string file = "example_graph.txt";
     graph.read_from_file(file);
 
-    IS_TRUE(!graph.does_vertex_exist_in_graph("z"));
+    Graph graph2("example_graph.txt");
+
+    IS_TRUE(!graph.does_vertex_exist_in_graph("z") && !graph2.does_vertex_exist_in_graph("z"));
 }
 
 
@@ -62,6 +77,7 @@ int main() {
     test_graph_init();
     test_shortest_path_a_to_g();
     test_shortest_path_f_to_d();
+    test_shortest_path_e_to_e();
     test_find_c_exists_in_graph();
     test_find_z_does_not_exist_in_graph();
 

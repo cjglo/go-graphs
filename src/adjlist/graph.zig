@@ -26,9 +26,8 @@ pub fn Graph() type {
             incidenceSpot2: **Edge, // same as above but for other Vertex it connects
         };
 
-        // map used for Dijkstra's
+        // map and Queue used for Dijkstra's
         const HashMap = std.array_hash_map.AutoArrayHashMap(*Vertex, u64);
-        // Priority Queue for Dijkstra's
         const Heap = std.PriorityQueue(*Edge, u64, edgeSort);
 
         pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) !u64 {
@@ -36,7 +35,6 @@ pub fn Graph() type {
             const vert2: *Vertex = try self.findVertexByName(vertName2);
             var map = HashMap.init(self.allocator);
             defer map.deinit();
-
             for (self.vertices.items) |vert| {
                 try map.put(vert, std.math.maxInt(u64));
             }
@@ -55,7 +53,6 @@ pub fn Graph() type {
             var buf_reader = std.io.bufferedReader(file.reader());
             var in_stream = buf_reader.reader();
             var buf: [1024]u8 = undefined;
-
             while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
                 if (line.len == 0) {
                     continue;
@@ -191,7 +188,6 @@ pub fn Graph() type {
             edge.incidenceSpot1 = &v1.incidence.items[index1]; // pointer to the pointer inside incidence
             try v2.incidence.append(edge);
             edge.incidenceSpot2 = &v2.incidence.items[index2]; // same as above but for vertex 2
-
             edge.index = self.edges.items.len;
             // NOTE: decided to append inside this fn rather than return because of edge.index.  Could cause issues if set index and have outer function append
             try self.edges.append(edge);

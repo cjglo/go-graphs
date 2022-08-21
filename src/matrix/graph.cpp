@@ -116,6 +116,8 @@ int Graph::find_shortest_path(string v1_name, string v2_name) {
         m[pair.second] = INT_MAX;
     }
 
+    m[vert1] = 0;
+
     int dist = this->dijkstras(vert1, vert2, m, 0);
 
     for(auto pair : m) {
