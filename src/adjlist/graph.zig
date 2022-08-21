@@ -5,7 +5,7 @@ const Allocator = std.mem.Allocator;
 const MemError = std.mem.Allocator.Error;
 const GraphError = error{VertexNotFound};
 
-pub fn Graph(comptime T: type) type {
+pub fn Graph() type {
     return struct {
         const Self = @This();
         vertices: ArrayList(*Vertex),
@@ -34,7 +34,6 @@ pub fn Graph(comptime T: type) type {
         pub fn findShortestPath(self: *Self, vertName1: [:0]const u8, vertName2: [:0]const u8) !u64 {
             const vert1: *Vertex = try self.findVertexByName(vertName1);
             const vert2: *Vertex = try self.findVertexByName(vertName2);
-
             var map = HashMap.init(self.allocator);
             defer map.deinit();
 
@@ -47,12 +46,9 @@ pub fn Graph(comptime T: type) type {
         }
 
         pub fn readFromFile(self: *Self, fileName: [:0]const u8) !void {
-            _ = T; // TODO: Current issue marked:  can't think of good reason to have generics
-
             self.deinit();
             self.vertices = ArrayList(*Vertex).init(self.allocator);
             self.edges = ArrayList(*Edge).init(self.allocator);
-
             const file = try std.fs.cwd().openFile(fileName, .{});
             defer file.close();
 
@@ -72,7 +68,6 @@ pub fn Graph(comptime T: type) type {
                         weight *= base;
                         weight += digit;
                     }
-
                     i += 1;
                     var j = i;
                     while (line[j] != ' ') {
@@ -102,17 +97,12 @@ pub fn Graph(comptime T: type) type {
         }
 
         // === Private Functions and init/deinit ===
-
         fn dijkstras(self: *Self, begin: *Vertex, end: *Vertex, map: *HashMap, path: u64) MemError!u64 {
-            if (begin == end) {
-                return map.get(begin).?;
-            }
+            if (begin == end) return map.get(begin).?;
             begin.visited = true;
-
-            // step 1
+            // step 1 - update neighbors
             updateNeighbors(begin, map, path);
-
-            // step 2
+            // step 2 - create queue of neighbors and go to closest one
             var neighbors = try self.createQueueOfNeighbors(begin); // could make pointer instead return copy, not sure if better
             defer neighbors.deinit();
 
@@ -146,8 +136,7 @@ pub fn Graph(comptime T: type) type {
 
         // for sorting method in createQueueOfNeighbors, it is part of type declaration for Heap
         fn edgeSort(num: u64, edge1: *Edge, edge2: *Edge) std.math.Order {
-            _ = num; // TODO: this is required param for creating Heap type, what is it neeed for?
-
+            _ = num; // Not using, this is required as param as this func will be passed to std lib heap
             if (edge1.weight < edge2.weight) {
                 return std.math.Order.lt;
             } else if (edge1.weight > edge2.weight) {
@@ -158,7 +147,6 @@ pub fn Graph(comptime T: type) type {
         }
 
         fn updateNeighbors(current: *Vertex, map: *HashMap, path: u64) void {
-            // reminder: incidence is list of ptrs to all edges touching vert
             for (current.incidence.items) |edge| {
                 // using unreachable since this is review project and not robust data struct lib
                 if (current == edge.v1) {
@@ -172,47 +160,40 @@ pub fn Graph(comptime T: type) type {
         }
 
         fn setAllAsUnvisited(self: Self) void {
-            for (self.vertices.items) |vert| {
-                vert.visited = false;
-            }
+            for (self.vertices.items) |vert| vert.visited = false;
         }
 
         fn createVertex(self: *Self, allocator: Allocator, name: []u8) !void {
             var vert = try allocator.create(Vertex);
-
             var nameClone = try allocator.alloc(u8, name.len);
             for (name) |char, i| {
                 nameClone[i] = char;
             }
-
             vert.name = nameClone;
             vert.incidence = Incidence.init(allocator);
             vert.index = self.vertices.items.len;
             vert.visited = false;
-            // decided to append rather than return because of vert.index.  Could cause issues to set index, but have outer function append
-            // not an issue to just append since this is private and will always want to append if this is run anyway
+            // NOTE: decided to append rather than return because could cause issues to set index, but have outer function append. 
             try self.vertices.append(vert);
         }
 
         fn createEdge(self: *Self, allocator: Allocator, weight: u32, v1name: []u8, v2name: []u8) !void {
             var edge = try allocator.create(Edge);
             edge.weight = weight;
-
             const v1 = try self.findVertexByName(v1name);
             const v2 = try self.findVertexByName(v2name);
             edge.v1 = v1;
             edge.v2 = v2;
-
             const index1 = v1.incidence.items.len;
+            const index2 = v2.incidence.items.len;
+
             try v1.incidence.append(edge);
             edge.incidenceSpot1 = &v1.incidence.items[index1]; // pointer to the pointer inside incidence
-
-            const index2 = v2.incidence.items.len;
             try v2.incidence.append(edge);
             edge.incidenceSpot2 = &v2.incidence.items[index2]; // same as above but for vertex 2
 
             edge.index = self.edges.items.len;
-            // decided to append inside this fn rather than return because of edge.index.  Could cause issues if set index and have outer function append
+            // NOTE: decided to append inside this fn rather than return because of edge.index.  Could cause issues if set index and have outer function append
             try self.edges.append(edge);
         }
 
@@ -225,7 +206,6 @@ pub fn Graph(comptime T: type) type {
 
         pub fn deinit(self: *Self) void {
             self.edges.deinit();
-
             for (self.vertices.items) |vert| {
                 vert.incidence.deinit();
                 self.allocator.free(vert.name);
