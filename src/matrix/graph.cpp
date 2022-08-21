@@ -6,6 +6,14 @@ using std::map;
 using std::priority_queue;
 using std::pair;
 
+GraphException::GraphException(string msg) {
+    this->message = msg;
+}
+
+string GraphException::what () {
+    return this->message;
+}
+
 Graph::Graph() : vert_name_to_ptr() {
     this->adj_matrix = nullptr;
     this->num_of_vertices = 0;
@@ -34,6 +42,7 @@ void Graph::read_from_file(string file_name) {
                 no_edge_yet = false;
                 // constructing matrix before processing edges
                 this->adj_matrix = new Edge**[vertex_counter];
+
                 for(int i = 0; i<vertex_counter; i++) {
                     adj_matrix[i] = new Edge*[vertex_counter];
                 }
@@ -49,10 +58,11 @@ void Graph::read_from_file(string file_name) {
                 string v1_name = "";
                 bool v1_done = false;
                 string v2_name = "";
+
                 for(auto letter : line) {
-                    // TODO Parser here is pretty messy, may want to rewrite
                     // NOTE: Since excerise is about graph practice and not error handling, parser assumes correct input
                     if(letter == '-') continue;
+
                     if(letter >= '0' && letter <= '9') {
                         weight *= 10; // move num over digits insert next digit
                         weight += letter - '0';
@@ -78,16 +88,23 @@ void Graph::read_from_file(string file_name) {
 
         this->num_of_vertices = vertex_counter;
     } else {
-        std::cout<< "Error Reading File" <<std::endl; // TODO: Create wrapper or exception
+        throw GraphException("Error Reading File");
     }
 }
 
-int Graph::find_shortest_path(string v1_name, string v2_name) {
+Graph::Graph(string file_name) : vert_name_to_ptr() {
+    this->adj_matrix = nullptr;
+    this->num_of_vertices = 0;
+    this->read_from_file(file_name);
+}
 
-    if(vert_name_to_ptr.find(v1_name) == vert_name_to_ptr.end() 
-        || vert_name_to_ptr.find(v2_name) == vert_name_to_ptr.end()) {
-        // error handling for if either name does not exist, could make exception class
-        return -1;
+int Graph::find_shortest_path(string v1_name, string v2_name) {
+    // error handling for vertices not existing
+    if(vert_name_to_ptr.find(v1_name) == vert_name_to_ptr.end()) {
+        throw GraphException("Vertex " + v1_name + " does not exist in graph");
+    }
+    if(vert_name_to_ptr.find(v2_name) == vert_name_to_ptr.end()) {
+        throw GraphException("Vertex " + v2_name + " does not exist in graph");
     }
 
     Vertex* vert1 = vert_name_to_ptr[v1_name];
@@ -127,15 +144,16 @@ bool Graph::is_empty() {
 // Private Methods Implementations
 
 int Graph::dijkstras(Vertex* begin, Vertex* end, map<Vertex*,int> &m, int path) {
-
     if(begin == end) {
         return m[begin];
     }
 
     begin->visit();
 
+    // Step 1 - update neighbors
     update_neighbors(begin, m, path);
 
+    // Step 2 - Create min heap of neighbors and go to closest neighbor
     heap hp = create_neighbors_min_heap(begin);
 
     int distance = INT_MAX;
@@ -150,6 +168,7 @@ int Graph::dijkstras(Vertex* begin, Vertex* end, map<Vertex*,int> &m, int path) 
 }
 
 void Graph::update_neighbors(Vertex* current, map<Vertex*,int> &m, int path) {
+
     for(int i = 0; i<this->num_of_vertices; i++) {
 
         if(this->adj_matrix[current->get_index()][i] != nullptr) {

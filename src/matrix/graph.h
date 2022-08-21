@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <exception>
 #include "edge.h"
 #include "vertex.h"
 #include <bits/stdc++.h>
@@ -15,6 +16,7 @@ typedef std::priority_queue<std::pair<int,Vertex*>, std::vector<std::pair<int,Ve
 class Graph {
     public:
         Graph();
+        Graph(std::string file_name);
         void read_from_file(std::string file_name);
         int find_shortest_path(std::string v1_name, std::string v2_name);
         bool does_vertex_exist_in_graph(std::string vertex_name);
@@ -30,6 +32,16 @@ class Graph {
         void update_neighbors(Vertex* current, std::map<Vertex*,int> &m, int path);
         heap create_neighbors_min_heap(Vertex* current);
         
+};
+
+// Graph Exeception class
+class GraphException : public std::exception {
+    private:
+    std::string message;
+
+    public:
+    GraphException(std::string msg);
+    std::string what ();
 };
 
 #endif
