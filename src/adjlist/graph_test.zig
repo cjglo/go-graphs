@@ -2,20 +2,19 @@ const std = @import("std");
 const graph = @import("graph.zig");
 
 const TestError = error{ LeftDidNotEqualRight, CanNotFindNameInGraph, FoundNameInGraphThatDoesNotExist };
+var gpa = std.heap.GeneralPurposeAllocator(.{}){};
 
 // === Tests ===
 test "Expect ReadFromFile to initialize Graph w/o error" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
-    defer g.deinit();
+    g.deinit();
     var g2 = try graph.Graph().init(allocator);
-    g2.deinit();
-    try g.readFromFile("example_graph.txt");
+    defer g2.deinit();
+    try g2.readFromFile("example_graph.txt");
 }
 
 test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 15" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
@@ -26,7 +25,6 @@ test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 
 }
 
 test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 17" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
@@ -37,7 +35,6 @@ test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 
 }
 
 test "Expect doesNameExistInGraph to return true for \"a\"" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
@@ -47,7 +44,6 @@ test "Expect doesNameExistInGraph to return true for \"a\"" {
 }
 
 test "Expect doesNameExistInGraph to return false for \"z\"" {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();

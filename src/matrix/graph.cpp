@@ -6,13 +6,6 @@ using std::map;
 using std::priority_queue;
 using std::pair;
 
-GraphException::GraphException(string msg) {
-    this->message = msg;
-}
-
-string GraphException::what () {
-    return this->message;
-}
 
 Graph::Graph() : vert_name_to_ptr() {
     this->adj_matrix = nullptr;
@@ -20,7 +13,7 @@ Graph::Graph() : vert_name_to_ptr() {
 }
 
 void Graph::read_from_file(string file_name) {
-
+    // will read file line by line and build matrix
     ifstream graph_file(file_name);
     string line;
     if(graph_file.is_open()) {

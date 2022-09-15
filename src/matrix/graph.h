@@ -10,6 +10,7 @@
 
 #include "edge.h"
 #include "vertex.h"
+#include "graph_exception.h"
 #include <bits/stdc++.h>
 
 // min heap based on distance (int)
@@ -37,14 +38,5 @@ class Graph {
         
 };
 
-// Graph Exeception class
-class GraphException : public std::exception {
-    private:
-    std::string message;
-
-    public:
-    GraphException(std::string msg);
-    std::string what ();
-};
 
 #endif
