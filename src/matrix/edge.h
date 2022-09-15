@@ -1,6 +1,8 @@
 #ifndef __EDGE_H__
 #define __EDGE_H__
 
+#include <iostream>
+
 #include "vertex.h"
 
 class Edge {
@@ -19,6 +21,8 @@ class Edge {
         void set_v1(Vertex* ptr);
 
         void set_v2(Vertex* ptr);
+
+        void log_edge(); // for testing
 
     private:
         int weight;

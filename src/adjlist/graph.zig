@@ -12,11 +12,8 @@ pub fn Graph() type {
         edges: ArrayList(*Edge),
         allocator: Allocator,
 
-        // Incidences implemented as a ArrayList
-        const Incidence = ArrayList(*Edge);
-
+        const Incidence = ArrayList(*Edge); // Incidences implemented as a ArrayList
         pub const Vertex = struct { name: []const u8, index: u64, incidence: Incidence, visited: bool };
-
         pub const Edge = struct {
             weight: u64,
             index: u64,
@@ -25,7 +22,6 @@ pub fn Graph() type {
             incidenceSpot1: **Edge, // Will be ptr to self inside a Vertex incidence
             incidenceSpot2: **Edge, // same as above but for other Vertex it connects
         };
-
         // map and Queue used for Dijkstra's
         const HashMap = std.array_hash_map.AutoArrayHashMap(*Vertex, u64);
         const Heap = std.PriorityQueue(*Edge, u64, edgeSort);

@@ -3,10 +3,10 @@ const graph = @import("graph.zig");
 
 const TestError = error{ LeftDidNotEqualRight, CanNotFindNameInGraph, FoundNameInGraphThatDoesNotExist };
 var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+var allocator = gpa.allocator();
 
 // === Tests ===
 test "Expect ReadFromFile to initialize Graph w/o error" {
-    var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     g.deinit();
     var g2 = try graph.Graph().init(allocator);
@@ -15,7 +15,6 @@ test "Expect ReadFromFile to initialize Graph w/o error" {
 }
 
 test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 15" {
-    var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
     try g.readFromFile("example_graph.txt");
@@ -25,7 +24,6 @@ test "Expect FindShortestPath to return shortest path from \"a\" to \"g\" to be 
 }
 
 test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 17" {
-    var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
     try g.readFromFile("example_graph.txt");
@@ -35,7 +33,6 @@ test "Expect FindShortestPath to return shortest path from \"f\" to \"d\" to be 
 }
 
 test "Expect doesNameExistInGraph to return true for \"a\"" {
-    var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
     try g.readFromFile("example_graph.txt");
@@ -44,7 +41,6 @@ test "Expect doesNameExistInGraph to return true for \"a\"" {
 }
 
 test "Expect doesNameExistInGraph to return false for \"z\"" {
-    var allocator = gpa.allocator();
     var g = try graph.Graph().init(allocator); // take type and just initialize it
     defer g.deinit();
     try g.readFromFile("example_graph.txt");

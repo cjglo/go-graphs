@@ -30,3 +30,13 @@ void Edge::set_v1(Vertex* ptr) {
 void Edge::set_v2(Vertex* ptr) {
     this->v2 = ptr;
 }
+
+void Edge::log_edge() {
+    if(this->v1 != nullptr) {
+        std::cout<<this->v1->get_index()<<'\n';
+    }
+    if(this->v2 != nullptr) {
+        std::cout<<this->v2->get_index()<<'\n';
+    }
+    std::cout<<weight<<'\n';
+}
